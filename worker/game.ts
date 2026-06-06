@@ -1,7 +1,7 @@
 import {
-  BOARD_SIZE, EMPTY, BLACK, WHITE,
-  type Player, type Board, type Position, DIRECTIONS,
-} from '../../shared/types.js'
+  BOARD_SIZE, EMPTY, BLACK, WHITE, DIRECTIONS,
+  type Player, type Board, type Position,
+} from '../shared/types'
 
 export function createBoard(): Board {
   return Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(EMPTY))
@@ -20,7 +20,6 @@ export function makeMove(board: Board, row: number, col: number, player: Player)
 export function checkWin(board: Board, row: number, col: number): boolean {
   const player = board[row][col]
   if (player === EMPTY) return false
-
   for (const [dr, dc] of DIRECTIONS) {
     let count = 1
     for (let i = 1; i < 5; i++) {
@@ -44,4 +43,14 @@ export function isBoardFull(board: Board): boolean {
 
 export function getOpponent(player: Player): Player {
   return player === BLACK ? WHITE : BLACK
+}
+
+export function resetBoardFromMoves(moves: Position[]): Board {
+  const board = createBoard()
+  let isBlackTurn = true
+  for (const move of moves) {
+    board[move.row][move.col] = isBlackTurn ? BLACK : WHITE
+    isBlackTurn = !isBlackTurn
+  }
+  return board
 }

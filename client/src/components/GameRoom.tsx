@@ -9,9 +9,9 @@ interface GameRoomProps {
   undoRequested: { from: string } | null
   undoPending: boolean
   opponentLeft: boolean
-  onMove: (roomId: string, row: number, col: number) => void
-  onUndo: (roomId: string) => void
-  onRespondUndo: (roomId: string, accepted: boolean) => void
+  onMove: (row: number, col: number) => void
+  onUndo: () => void
+  onRespondUndo: (accepted: boolean) => void
   onLeave: () => void
 }
 
@@ -52,7 +52,7 @@ export default function GameRoom({
 
   function handleCellClick(row: number, col: number) {
     if (!isMyTurn) return
-    onMove(room.id, row, col)
+    onMove(row, col)
   }
 
   function myTurnLabel() {
@@ -79,13 +79,9 @@ export default function GameRoom({
     return (
       <div className="waiting-room">
         <div className="waiting-room-card">
-          <div className="pulse-dots">
-            <span /><span /><span />
-          </div>
+          <div className="pulse-dots"><span /><span /><span /></div>
           <h2>等待对手加入</h2>
-          <div className="room-code-display">
-            <span>{room.id}</span>
-          </div>
+          <div className="room-code-display"><span>{room.id}</span></div>
           <p className="hint">将上方房间号发送给好友</p>
           <button className="btn btn-outline" onClick={onLeave}>取消</button>
         </div>
@@ -99,9 +95,7 @@ export default function GameRoom({
         <div className="player-info">
           <span className={`stone-icon ${myColor === BLACK ? 'black' : 'white'}`} />
           <span className="player-name">{me?.name || '我'}</span>
-          <span className={`turn-indicator ${!isMyTurn || isGameOver ? 'idle' : ''}`}>
-            {myTurnLabel()}
-          </span>
+          <span className={`turn-indicator ${!isMyTurn || isGameOver ? 'idle' : ''}`}>{myTurnLabel()}</span>
         </div>
         <span className="room-code-badge">{room.id}</span>
         <div className="player-info">
@@ -139,23 +133,13 @@ export default function GameRoom({
       </div>
 
       <div className="game-actions">
-        <button
-          className="btn btn-outline btn-sm"
-          onClick={() => onUndo(room.id)}
-          disabled={room.moves.length === 0 || isGameOver || undoPending}
-        >
+        <button className="btn btn-outline btn-sm" onClick={onUndo} disabled={room.moves.length === 0 || isGameOver || undoPending}>
           ↩ 悔棋
         </button>
-        <button className="btn btn-outline btn-sm btn-danger" onClick={onLeave}>
-          ✕ 离开
-        </button>
+        <button className="btn btn-outline btn-sm btn-danger" onClick={onLeave}>✕ 离开</button>
       </div>
 
-      {undoPending && (
-        <div className="undo-notification">
-          已发送悔棋请求
-        </div>
-      )}
+      {undoPending && <div className="undo-notification">已发送悔棋请求</div>}
 
       {undoRequested && (
         <div className="undo-dialog-overlay">
@@ -164,12 +148,8 @@ export default function GameRoom({
             <p>对方请求悔棋</p>
             <p className="dialog-hint">是否同意撤回上一步？</p>
             <div className="undo-dialog-buttons">
-              <button className="btn btn-primary" onClick={() => onRespondUndo(room.id, true)}>
-                同意
-              </button>
-              <button className="btn btn-outline" onClick={() => onRespondUndo(room.id, false)}>
-                拒绝
-              </button>
+              <button className="btn btn-primary" onClick={() => onRespondUndo(true)}>同意</button>
+              <button className="btn btn-outline" onClick={() => onRespondUndo(false)}>拒绝</button>
             </div>
           </div>
         </div>

@@ -1,14 +1,10 @@
-import { useState } from 'react'
-import { useSocket } from './hooks/useSocket'
+import { useGame } from './hooks/useGame'
 import Home from './components/Home'
 import GameRoom from './components/GameRoom'
 
-type View = 'home' | 'game'
-
 export default function App() {
-  const [view, setView] = useState<View>('home')
   const {
-    connected,
+    state,
     room,
     playerId,
     error,
@@ -22,45 +18,35 @@ export default function App() {
     respondUndo,
     leaveRoom,
     setError,
-  } = useSocket()
+  } = useGame()
 
-  function handleCreateRoom(mode: 'pvp' | 'pve') {
-    createRoom(mode)
-    setView('game')
+  if (state === 'idle') {
+    return (
+      <div className="app">
+        <Home
+          onCreateRoom={createRoom}
+          onJoinRoom={joinRoom}
+          error={error}
+          setError={setError}
+        />
+      </div>
+    )
   }
 
-  function handleJoinRoom(roomId: string) {
-    joinRoom(roomId)
-    setView('game')
-  }
-
-  function handleLeave() {
-    leaveRoom()
-    setView('home')
-  }
-
-  if (!connected) {
+  if (state === 'connecting') {
     return (
       <div className="app">
         <div className="loading">
-          <div className="spinner"></div>
-          <p>连接服务器中...</p>
+          <div className="spinner" />
+          <p>连接中...</p>
         </div>
       </div>
     )
   }
 
-  return (
-    <div className="app">
-      {view === 'home' && (
-        <Home
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-          error={error}
-          setError={setError}
-        />
-      )}
-      {view === 'game' && room && (
+  if (room) {
+    return (
+      <div className="app">
         <GameRoom
           room={room}
           playerId={playerId}
@@ -70,15 +56,18 @@ export default function App() {
           onMove={makeMove}
           onUndo={requestUndo}
           onRespondUndo={respondUndo}
-          onLeave={handleLeave}
+          onLeave={leaveRoom}
         />
-      )}
-      {view === 'game' && !room && (
-        <div className="loading">
-          <p>{error || '加入房间失败'}</p>
-          <button className="btn btn-primary" onClick={handleLeave}>返回</button>
-        </div>
-      )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="app">
+      <div className="loading">
+        <p>{error || '出错了'}</p>
+        <button className="btn btn-primary" onClick={leaveRoom}>返回</button>
+      </div>
     </div>
   )
 }

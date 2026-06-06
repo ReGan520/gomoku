@@ -2,14 +2,15 @@
   "name": "wuziqi",
   "private": true,
   "scripts": {
-    "postinstall": "npm --prefix client install && npm --prefix server install",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "npm --prefix server run dev",
+    "dev": "concurrently \"npm run dev:worker\" \"npm run dev:client\"",
     "dev:client": "npm --prefix client run dev",
+    "dev:worker": "npx wrangler dev --port 8787",
     "build": "npm --prefix client run build",
-    "start": "npm --prefix server run start"
+    "deploy": "npm run build && npx wrangler deploy"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@cloudflare/workers-types": "^4.20260606.1",
+    "concurrently": "^8.2.2",
+    "wrangler": "^3.0.0"
   }
 }

@@ -1,0 +1,15 @@
+name = "wuziqi"
+main = "worker/index.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "client/dist"
+
+[[durable_objects.bindings]]
+name = "GAME_ROOM"
+class_name = "GameRoomDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["GameRoomDO"]

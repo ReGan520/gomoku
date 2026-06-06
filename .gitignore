@@ -3,8 +3,13 @@ node_modules
 
 # output
 out
-dist
 *.tgz
+
+# client build output
+client/dist
+
+# wrangler
+.wrangler
 
 # code coverage
 coverage
