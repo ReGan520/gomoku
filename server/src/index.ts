@@ -14,8 +14,17 @@ app.use(cors())
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const clientDist = path.resolve(__dirname, '../../client/dist')
-app.use(express.static(clientDist))
-app.get('*', (_req, res) => {
+app.use(express.static(clientDist, {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript')
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css')
+    }
+  },
+}))
+app.get('*', (req, res) => {
+  if (req.path.includes('.')) return res.status(404).end()
   res.sendFile(path.join(clientDist, 'index.html'))
 })
 
